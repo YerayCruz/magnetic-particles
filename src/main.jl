@@ -72,7 +72,7 @@ function F_lj_2d(r, ϵ, σ)
     return force_direction * magnitude
 end
 
-# Update force calculation to handle boundaries and particle interactions
+#Update force calculation to handle boundaries and particle interactions
 function update_forces(x, F, i, ϵ, σ, np, viscocity, velocity)
     j = 2
 
@@ -93,6 +93,85 @@ function update_forces(x, F, i, ϵ, σ, np, viscocity, velocity)
         FW           = [FW_x1 + FW_x2, FW_y1 + FW_y2]
         F[i,j, 1]   += FW[1]
         F[i,j, 2]   += FW[2]
+
+        for jp=j:np
+            r = x[i, ip, :] - x[i, jp, :]
+            force = elastic_f(r, k, d)
+            F[i, ip, :] += force - viscocity*velocity[ip, :]
+            F[i, jp, :] -= force + viscocity*velocity[jp, :]
+        end
+        j += 1
+    end
+end
+
+function wall_force(x, F, i, ϵ, σ, np, viscocity, velocity)
+
+    j = 2
+
+    for ip = 1:np - 1
+        
+        FW_x1        = F_lj_2d([x[i, ip, 1].-(-L), 0], ϵ, σ)[1]
+        FW_x2        = F_lj_2d([x[i, ip, 1].-(+L), 0], ϵ, σ)[1]
+        FW_y1        = F_lj_2d([0, x[i, ip, 2].-(-L)], ϵ, σ)[2]
+        FW_y2        = F_lj_2d([0, x[i, ip, 2].-(+L)], ϵ, σ)[2]
+        FW           = [FW_x1 + FW_x2, FW_y1 + FW_y2]
+        F[i,ip, 1]   += FW[1]
+        F[i,ip, 2]   += FW[2]
+
+        FW_x1        = F_lj_2d([x[i, j, 1].-(-L), 0], ϵ, σ)[1]
+        FW_x2        = F_lj_2d([x[i, j, 1].-(+L), 0], ϵ, σ)[1]
+        FW_y1        = F_lj_2d([0, x[i, j, 2].-(-L)], ϵ, σ)[2]
+        FW_y2        = F_lj_2d([0, x[i, j, 2].-(+L)], ϵ, σ)[2]
+        FW           = [FW_x1 + FW_x2, FW_y1 + FW_y2]
+        F[i,j, 1]   += FW[1]
+        F[i,j, 2]   += FW[2]
+
+        j += 1
+
+    end
+
+end
+
+function bond_pos(p_dist, σ, L)
+
+    L *= 2
+    x_pos = 0, y_pos = 0 
+    p_spacing = 2.5*σ
+    if np == sum(p_dist)
+        x = zeros(Float64, np, 2)
+    end
+
+    if length(p_dist) < L - 2*p_spacing
+        println("Unable to compute bonds, spcae to small")
+    end
+    for i = 1:length(p_dist)
+        if p_dist[i]*p_spacing < L - 2*p_spacing
+
+            b_distribution = [floor(p_dist[i]/2), p_dist[i] - floor(p_dist[i]/2)] #This part gives left part and right part from center of box, first particle of right side will always be in center.
+
+            l_counter = b_distribution[1], r_counter = b_distribution[2]
+
+            if l_counter > 0
+                for 1:l_counter
+
+                end
+            end
+
+
+        else
+            println("Unable to add bond $i")
+        end
+    end
+
+end
+
+
+function create_bond(p_dist, viscocity, velocity) #p_dist is an array that contains the number of particles per bond
+
+    
+    j = 2
+
+    for ip = 1:np - 1
 
         for jp=j:np
             r = x[i, ip, :] - x[i, jp, :]
