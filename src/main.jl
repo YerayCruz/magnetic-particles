@@ -6,15 +6,16 @@ using Statistics
 using ProgressMeter
 
 include("./initial_pos/init_pos.jl")
+include("./Forces/forces.jl")
 
-using .BONDS_POSITION
+using .BONDS_POSITION, .FORCES
 
 k = 0.1
-d = 3.0
+d = 4.9
 
 bonds = [2, 2, 4]
 
-viscocity = 0.7
+viscocity = 0.9
 
 kB = 8.617e-5 # Boltzman Constant
 ϵ = 1.0
@@ -59,49 +60,34 @@ temperature = zeros(Float64, length(t))
 
 x = initial_positions_distribution(σ, L, bonds, 2, t) ## x es un array de n estructuras que contiene el numero de atomos de cada bond y sus posiciones
 
-function elastic_f(r, k, d)
-    r_norm = sqrt(sum(r .^ 2))
-    force_direction = r / r_norm
-    magnitude = -k*(r_norm-d)
-    return force_direction * magnitude
-end
 
-function F_lj_2d(r, ϵ, σ)
-    r_norm = sqrt(sum(r .^ 2))
-    force_direction = r / r_norm
-    magnitude = 4*ϵ * (12 * (σ / r_norm) ^ 12 - 6 * (σ / r_norm) ^ 6) / r_norm
-    return force_direction * magnitude
+function wall_force(x, i, ϵ, σ, b)
+
+    for ip = 1:x[b].n
+
+      FW_x1        = F_lj_2d([x[b].position[i, ip, 1] - (-L), 0], ϵ, σ)[1]
+      FW_x2        = F_lj_2d([x[b].position[i, ip, 1] - (+L), 0], ϵ, σ)[1]
+      FW_y1        = F_lj_2d([0, x[b].position[i, ip, 2] - (-L)], ϵ, σ)[2]
+      FW_y2        = F_lj_2d([0, x[b].position[i, ip, 2] - (+L)], ϵ, σ)[2]
+      FW           = [FW_x1 + FW_x2, FW_y1 + FW_y2]
+
+      F[b].force[i, ip, 1]   -= FW[1]
+      F[b].force[i, ip, 2]   -= FW[2]
+
+      #FW_x1        = F_lj_2d([x[b].position[i, ip + 1, 1] - (-L), 0], ϵ, σ)[1]
+      #FW_x2        = F_lj_2d([x[b].position[i, ip + 1, 1] - (+L), 0], ϵ, σ)[1]
+      #FW_y1        = F_lj_2d([0, x[b].position[i, ip + 1, 2] - (-L)], ϵ, σ)[2]
+      #FW_y2        = F_lj_2d([0, x[b].position[i, ip + 1, 2] - (+L)], ϵ, σ)[2]
+      #FW           = [FW_x1 + FW_x2, FW_y1 + FW_y2]
+
+      #F[b].force[i,ip + 1, 1]   += FW[1]
+      #F[b].force[i,ip + 1, 2]   += FW[2]
+
+    end
 end
 
 #Update force calculation to handle boundaries and particle interactions
 
-function wall_force(x, F, i, ϵ, σ, np, viscocity, velocity)
-
-    j = 2
-
-    for ip = 1:np - 1
-        
-        FW_x1        = F_lj_2d([x[i, ip, 1].-(-L), 0], ϵ, σ)[1]
-        FW_x2        = F_lj_2d([x[i, ip, 1].-(+L), 0], ϵ, σ)[1]
-        FW_y1        = F_lj_2d([0, x[i, ip, 2].-(-L)], ϵ, σ)[2]
-        FW_y2        = F_lj_2d([0, x[i, ip, 2].-(+L)], ϵ, σ)[2]
-        FW           = [FW_x1 + FW_x2, FW_y1 + FW_y2]
-        F[i,ip, 1]   += FW[1]
-        F[i,ip, 2]   += FW[2]
-
-        FW_x1        = F_lj_2d([x[i, j, 1].-(-L), 0], ϵ, σ)[1]
-        FW_x2        = F_lj_2d([x[i, j, 1].-(+L), 0], ϵ, σ)[1]
-        FW_y1        = F_lj_2d([0, x[i, j, 2].-(-L)], ϵ, σ)[2]
-        FW_y2        = F_lj_2d([0, x[i, j, 2].-(+L)], ϵ, σ)[2]
-        FW           = [FW_x1 + FW_x2, FW_y1 + FW_y2]
-        F[i,j, 1]   += FW[1]
-        F[i,j, 2]   += FW[2]
-
-        j += 1
-
-    end
-
-end
 
 function create_bond(x, viscocity, velocity, i, b) #x is an array
 
@@ -119,9 +105,11 @@ end
 @showprogress "Computing velocity-verlet" for i in 1:length(t)-1
   for b = 1:length(bonds)
 
+    wall_force(x, i, ϵ, σ, b)
     create_bond(x, viscocity, v, i, b)
     v_mid = v[b].velocity[i, :, :] .+ Δt / 2 / m .* F[b].force[i, :, :]
     x[b].position[i + 1, :, :] = x[b].position[i, :, :] .+ v_mid
+    wall_force(x, i + 1, ϵ, σ, b)
     create_bond(x, viscocity, v, i+1, b)
     v[b].velocity[i+1, :, : ] = v_mid .+ Δt / 2 / m .* F[b].force[i+1, :, :]
 
