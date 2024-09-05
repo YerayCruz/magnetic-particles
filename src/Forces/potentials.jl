@@ -1,9 +1,7 @@
-module FORCES
+module POTENTIALS
 using LinearAlgebra
 
 export F_lj_2d, elastic_f, harmonic_force
-
-
 
 function elastic_f(r, k, d)
     r_norm = sqrt(sum(r .^ 2))
@@ -11,7 +9,6 @@ function elastic_f(r, k, d)
     magnitude = -k*(r_norm-d)
     return force_direction * magnitude
 end
-
 
 function F_lj_2d(r, ϵ, σ)
     r_norm = sqrt(sum(r .^ 2))

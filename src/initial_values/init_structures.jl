@@ -2,19 +2,28 @@ module BONDS_POSITION
 
 using Plots
 
-export initial_positions_distribution
+export initial_positions_distribution, initial_forces, initial_velocities
 
 struct Chain
     n::Int
     position::Array{Float64, 3}
 end
 
-chains = []
+
+struct Velocities
+  velocity::Array{Float64}
+end
+
+
+struct Forces
+  force::Array{Float64}
+end
 
 #At the end we have an array called chains with structures
 
 function initial_positions_distribution(sigma, L, particles_per_chain, nd, t)
 
+  chains = []
     for i = 1:length(particles_per_chain)
 
         n = particles_per_chain[i]
@@ -71,5 +80,26 @@ function initial_positions_distribution(sigma, L, particles_per_chain, nd, t)
     return chains
 
 end
+
+function initial_velocities(bonds, t)
+  v = []
+
+  for b = 1:length(bonds)
+    zeros_array = zeros(Float64, length(t), bonds[b], 2)
+    push!(v, Velocities(zeros_array))
+  end
+  return v
+end
+function initial_forces(bonds, t)
+  F = []
+
+  for b = 1:length(bonds)
+    zeros_array = zeros(Float64, length(t), bonds[b], 2)
+    push!(F, Forces(zeros_array))
+  end
+
+  return F
+end
+
 
 end
