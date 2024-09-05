@@ -3,7 +3,7 @@ module FORCE_CALCULATION
 include("./potentials.jl")
 using .POTENTIALS
 
-export wall_force, angle_force, create_bond
+export wall_force, angle_force, create_bond, chain_interaction
 
 function wall_force(x, i, ϵ, σ, b, L, F)
 
@@ -43,5 +43,23 @@ function create_bond(x, viscocity, v, i, b, F, k, d) #x is an array
    end
  
 end
+
+function chain_interaction(x, b, ϵ, σ, F, numberb, i)
+  if numberb >= 2
+    for nextb = (b + 1):numberb
+     for ip = 1:x[b].n
+       for jp = 1:x[nextb].n
+         r = x[b].position[i, ip, :] - x[nextb].position[i, jp, :]
+         F[nextb].force[i, jp, :] += F_lj_2d(r, ϵ, σ)
+         F[b].force[i, ip, :] -= F_lj_2d(r, ϵ, σ)
+       end
+     end
+    end
+    else
+      println("No other chains in simulation.")
+    end
+
+end
+
 
 end
