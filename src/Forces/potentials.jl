@@ -37,4 +37,8 @@ function harmonic_force(r1, r2, angle, ka)
   return force_direction * magnitude
 end
 
+function dipole_magnetic_force()
+
+end
+
 end
