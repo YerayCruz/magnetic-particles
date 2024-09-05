@@ -28,13 +28,19 @@ function harmonic_force(r1, r2, angle, ka)
   end
   current_angle = acosd(factor)
   absolute_angle = acosd(r1[1]/r1_norm)
+
+  magnitude = -ka*(current_angle - angle)/r1_norm
   if r1[2] < 0
     absolute_angle = 360 - absolute_angle
+    magnitude *= -1
   end
-  magnitude = -ka*(current_angle - angle)/r1_norm
+
   force_direction = [-sind(absolute_angle), cosd(absolute_angle)]
-  println(current_angle)
   return force_direction * magnitude
+end
+
+function dipole_magnetic_force()
+
 end
 
 end

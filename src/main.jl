@@ -6,18 +6,16 @@ include("./Forces/force_calculation.jl")
 include("./Forces/potentials.jl")
 using .BONDS_POSITION, .FORCE_CALCULATION
 
-k = 0.1
-ka = 0.1
-d = 2.5
-angle = 100
-bonds = [5]
+k = 0.5
+ka = 0.2
+d = 2.7
+angles = [180, 180]
+bonds = [6, 3]
 viscocity = 0.9
 
 ϵ = 1.0
 σ = 1.0
 wall_dimension = 20
-
-m = 1.0 # Mass of particles
 
 L = wall_dimension/2.0
 
@@ -33,7 +31,11 @@ F = initial_forces(bonds, t)
     
     wall_force(x, i, ϵ, σ, b, L, F)
     create_bond(x, viscocity, v, i, b, F, k, d)
-    angle_force(x, i, b, F, ka, angle)
+    angle_force(x, i, b, F, ka, angles[b])
+    if length(bonds) > 1
+        chain_interaction(x, b, ϵ, σ, F, length(bonds), i)
+    end
+
     x[b].position[i + 1, :, :] = x[b].position[i, :, :] + (Δt / viscocity) * F[b].force[i, :, :]
 
   end
