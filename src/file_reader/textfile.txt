@@ -1,0 +1,11 @@
+Data
+
+number_atoms = 4
+number_chains = 2
+
+Atoms_information
+
+1 1 1.0 1.0
+2 1 1.0 1.0
+3 2 -1.0 1.0
+4 2 -1.0 1.0
