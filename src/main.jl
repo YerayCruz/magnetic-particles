@@ -7,18 +7,14 @@ include("./Forces/potentials.jl")
 using .BONDS_POSITION, .FORCE_CALCULATION
 
 k = 0.5
-<<<<<<< HEAD
 ka = 0.1
-d = 2.5
-=======
-ka = 0.5
 d = 2.7
->>>>>>> playground
-angles = [180, 100]
+angles = [120, 90]
+m = [[0., 1.], [0., 1.]]
 bonds = [6, 3]
 viscocity = 0.9
 
-ϵ = 1.0
+ϵ = 0.6
 σ = 1.0
 wall_dimension = 20
 
@@ -37,6 +33,7 @@ F = initial_forces(bonds, t)
     wall_force(x, i, ϵ, σ, b, L, F)
     create_bond(x, viscocity, v, i, b, F, k, d)
     angle_force(x, i, b, F, ka, angles[b])
+    magnetic_interaction(x, b, m, F, length(bonds), i)
     if length(bonds) > 1
         chain_interaction(x, b, ϵ, σ, F, length(bonds), i)
     end
