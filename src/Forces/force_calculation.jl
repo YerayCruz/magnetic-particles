@@ -26,8 +26,12 @@ function angle_force(x, i, b, F, ka, angle)
   for ip = 2:2:x[b].n - 1
     r1 = x[b].position[i, ip - 1, :] - x[b].position[i, ip, :]
     r2 = x[b].position[i, ip + 1, :] - x[b].position[i, ip, :]
-    angle_force = harmonic_force(r1, r2, angle, ka)
-    F[b].force[i, ip - 1, :] += angle_force
+    angle_force_1 = harmonic_force(r1, r2, angle, ka)
+    angle_force_2 = harmonic_force(r2, r1, angle, ka)
+    F[b].force[i, ip - 1, :] += angle_force_1
+    F[b].force[i, ip, :] -= angle_force_1
+    F[b].force[i, ip + 1, :] += angle_force_2
+    F[b].force[i, ip, :] -= angle_force_2
   end
 end
 
