@@ -53,8 +53,8 @@ function chain_interaction(x, b, ϵ, σ, F, numberb, i)
    for ip = 1:x[b].n
      for jp = 1:x[nextb].n
        r = x[b].position[i, ip, :] - x[nextb].position[i, jp, :]
-       F[nextb].force[i, jp, :] += F_lj_2d(r, ϵ, σ)
-       F[b].force[i, ip, :] -= F_lj_2d(r, ϵ, σ)
+       F[nextb].force[i, jp, :] -= wca_f(r, ϵ, σ)
+       F[b].force[i, ip, :] += wca_f(r, ϵ, σ)
      end
    end
   end
