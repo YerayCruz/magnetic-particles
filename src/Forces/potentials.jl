@@ -17,26 +17,20 @@ function F_lj_2d(r, ϵ, σ)
     return force_direction * magnitude
 end
 
+f = open("./data.txt", "w")
 function harmonic_force(r1, r2, angle, ka)
-  r1_norm = sqrt(sum(r1 .^ 2))
-  r2_norm = sqrt(sum(r2 .^ 2))
-  factor = dot(r1, r2)/(r1_norm*r2_norm)
-  if factor > 1 && factor < 1.05
-    factor = 1
-  elseif factor < -1 && factor > -1.05
-    factor = -1
-  end
-  current_angle = acosd(factor)
-  absolute_angle = acosd(r1[1]/r1_norm)
-
-  magnitude = -ka*(current_angle - angle)/r1_norm
-  if r1[2] < 0
-    absolute_angle = 360 - absolute_angle
-    magnitude *= -1
-  end
-
-  force_direction = [-sind(absolute_angle), cosd(absolute_angle)]
-  return force_direction * magnitude
+    r1_norm = sqrt(sum(r1 .^ 2))
+    r2_norm = sqrt(sum(r2 .^ 2))
+    r1_buffer = copy(r1)/r1_norm
+    r2_buffer = copy(r2)/r2_norm
+    push!(r1_buffer, 0.)
+    push!(r2_buffer, 0.)
+    force_direction = (cross(cross(r2_buffer, r1_buffer), r1_buffer))
+    current_angle = acosd(dot(r1, r2) ./ (r1_norm * r2_norm))
+    write(f, "force direction --> $force_direction, r1: $r1_buffer, r2: $r2_buffer, angle: $current_angle\n")
+    magnitude = -ka * (current_angle - angle)/r1_norm
+    pop!(force_direction)
+    return force_direction .* magnitude
 end
 
 function dipole_magnetic_force()

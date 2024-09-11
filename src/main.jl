@@ -7,9 +7,9 @@ include("./Forces/potentials.jl")
 using .BONDS_POSITION, .FORCE_CALCULATION
 
 k = 0.5
-ka = 0.2
+ka = 0.5
 d = 2.7
-angles = [180, 180]
+angles = [180, 100]
 bonds = [6, 3]
 viscocity = 0.9
 
