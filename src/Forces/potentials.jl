@@ -51,16 +51,16 @@ function harmonic_force(r1, r2, angle, ka)
 end
 
 function dipole_magnetic_force(r, m1, m2)
-    μ = 4 * π * 10^(-7)
+    μ = 1
     r_norm = sqrt(sum(r .^ 2))
-    force_direction = r / r_norm
+    r_unit = r ./ r_norm
 
-    m1_dot_r = dot(m1, r)
-    m2_dot_r = dot(m2, r)
+    m1_dot_r = dot(m1, r_unit)
+    m2_dot_r = dot(m2, r_unit)
     m1_dot_m2 = dot(m1, m2)
 
-    prefactor = ( 3 * μ ) / ( 4 * π * r_norm ^ 3)
-    magnitude = prefactor * ((m1_dot_r * m2) + (m2_dot_r * m1) + (m1_dot_m2 * r) - (5 * m1_dot_r * m2_dot_r)/(r_norm .^ 2) * r)
+    prefactor = ( 3 * μ ) / ( 4 * π * r_norm ^ 4)
+    magnitude = prefactor * ((m1_dot_r * m2) + (m2_dot_r * m1) + (m1_dot_m2 * r_unit) - (5 * r_unit * m1_dot_r * m2_dot_r))
     return magnitude
 end
 

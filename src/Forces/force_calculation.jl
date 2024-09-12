@@ -59,14 +59,15 @@ function chain_interaction(x, b, ϵ, σ, F, numberb, i)
    end
   end
 end
+
 ##TODO right now the force calculation is calculated twice, when in can be done only once.
 function magnetic_interaction(x, b, m, F, numberb, i) #m sera el vector de momento de cada particula.
     for nextb = (b + 1):numberb
         for ip = 1:x[b].n
             for jp = 1:x[nextb].n
                 r = x[b].position[i, ip, :] - x[nextb].position[i, jp, :]
-                F[nextb].force[i, jp, :] -= dipole_magnetic_force(r, m[b], m[nextb])
-                F[b].force[i, ip, :] += dipole_magnetic_force(r, m[b], m[nextb])
+                F[nextb].force[i, jp, :] += dipole_magnetic_force(r, m[b], m[nextb])
+                F[b].force[i, ip, :] += dipole_magnetic_force(r, m[nextb], m[b])
             end
         end
     end
