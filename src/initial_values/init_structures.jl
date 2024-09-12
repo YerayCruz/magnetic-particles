@@ -35,8 +35,8 @@ function initial_positions_distribution(sigma, L, particles_per_chain, nd, t)
     
     number_bonds = length(chains)
 
-    bond_spacing = 1.5 * sigma
-    particle_spacing = 1.5 * sigma
+    bond_spacing = 1.0 * sigma
+    particle_spacing = 2.5 * sigma
 
     bond_delim = number_bonds / 2
     y_o = -bond_spacing * floor(bond_delim)

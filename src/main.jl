@@ -9,18 +9,18 @@ using .BONDS_POSITION, .FORCE_CALCULATION
 k = 0.5
 ka = 0.1
 d = 2.7
-angles = [120, 90]
+angles = [180, 180]
 m = [[0., 1.], [0., 1.]]
 bonds = [6, 3]
 viscocity = 0.9
 
-ϵ = 0.6
+ϵ = 1.0
 σ = 1.0
 wall_dimension = 20
 
 L = wall_dimension/2.0
 
-t = range(0, stop=40, length=4001)
+t = range(0, stop=5, length=1001)
 
 x = initial_positions_distribution(σ, L, bonds, 2, t) ## x es un array de n estructuras que contiene el numero de atomos de cada bond y sus posiciones
 v = initial_velocities(bonds, t)
@@ -33,12 +33,12 @@ F = initial_forces(bonds, t)
     wall_force(x, i, ϵ, σ, b, L, F)
     create_bond(x, viscocity, v, i, b, F, k, d)
     angle_force(x, i, b, F, ka, angles[b])
-    magnetic_interaction(x, b, m, F, length(bonds), i)
     if length(bonds) > 1
+        magnetic_interaction(x, b, m, F, length(bonds), i)
         chain_interaction(x, b, ϵ, σ, F, length(bonds), i)
     end
 
-    x[b].position[i + 1, :, :] = x[b].position[i, :, :] + (Δt / viscocity) * F[b].force[i, :, :]
+    x[b].position[i + 1, :, :] = x[b].position[i, :, :] + (Δt / viscocity) .* F[b].force[i, :, :]
 
   end
 
