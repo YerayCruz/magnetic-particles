@@ -1,25 +1,9 @@
 module BONDS_POSITION
 
 using Plots
+using DynamicQuantities
 
-export initial_positions_distribution, initial_forces, initial_velocities
-
-struct Chain
-    n::Int
-    position::Array{Float64, 3}
-end
-
-
-struct Velocities
-  velocity::Array{Float64}
-end
-
-
-struct Forces
-  force::Array{Float64}
-end
-
-#At the end we have an array called chains with structures
+export initial_positions_distribution, initial_forces, initial_velocities, magnetic_moment
 
 function initial_positions_distribution(sigma, L, particles_per_chain, nd, t)
 
@@ -27,9 +11,10 @@ function initial_positions_distribution(sigma, L, particles_per_chain, nd, t)
     for i = 1:length(particles_per_chain)
 
         n = particles_per_chain[i]
-        zeros_array = zeros(Float64, length(t), n, nd)
-    
-        push!(chains, Chain(n, zeros_array))
+        zeros_array = zeros(Float64, length(t), n, nd)u"nm"
+
+        
+        push!(chains, Dict("n" => n, "position" => zeros_array))
     
     end
     
@@ -48,17 +33,17 @@ function initial_positions_distribution(sigma, L, particles_per_chain, nd, t)
 
     for i = 1 : number_bonds
 
-        if chains[i].n * particle_spacing > 2*L - 5*sigma
+        if chains[i]["n"] * particle_spacing > 2*L - 5*sigma
             println("Error, particles out of bounds")
             return
         end
 
-        particle_delim = chains[i].n / 2
+        particle_delim = chains[i]["n"] / 2
         x_o = -particle_spacing * floor(particle_delim)
 
-        for j = 1:chains[i].n
+        for j = 1:chains[i]["n"]
             
-            chains[i].position[1, j, :] = [x_o, y_o]
+            chains[i]["position"][1, j, :] = [x_o, y_o]
 
             x_o += particle_spacing
 
@@ -67,15 +52,6 @@ function initial_positions_distribution(sigma, L, particles_per_chain, nd, t)
         y_o += bond_spacing
 
     end
-
-    plot(xlims = (-L, L), ylims = (-L, L))
-    for i = 1:number_bonds
-    
-        scatter!([chains[i].position[1, :, 1]], [chains[i].position[1, :, 2]])
-
-    end
-
-    savefig("positions.png")
 
     return chains
 
@@ -86,20 +62,31 @@ function initial_velocities(bonds, t)
 
   for b = 1:length(bonds)
     zeros_array = zeros(Float64, length(t), bonds[b], 2)
-    push!(v, Velocities(zeros_array))
+    push!(v, Dict("velocity" => zeros_array))
   end
   return v
 end
+
 function initial_forces(bonds, t)
   F = []
 
   for b = 1:length(bonds)
-    zeros_array = zeros(Float64, length(t), bonds[b], 2)
-    push!(F, Forces(zeros_array))
+    zeros_array = zeros(Float64, length(t), bonds[b], 2)us"pN"
+    push!(F, Dict("force" => zeros_array))
   end
 
   return F
 end
 
+function magnetic_moment(bonds, σ, B)
+    χ = 0.4
+    m = []
+    v = (4 / 3) * π * σ ^ 3 
+    μ0 = (4 * π * 10 ^ 5)u"mT*nm/A" 
+    for b = 1:length(bonds)
+        push!(m, v * χ * B / μ0)
+    end
+    return m
+end
 
 end

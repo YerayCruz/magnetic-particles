@@ -8,8 +8,10 @@ payload = Dict("k" =>  0.5,
 "d" =>  2.7,
 "angles" =>  [180, 100],
 "bonds" =>  [6, 3],
-"m" => [[0.0, 1.0], [0.0, 1.0]],
+"B" => [0.0, 1.0],
 "viscocity" =>  0.9,
-"wall_dimension" =>  20.0)
+"wall_dimension" =>  20.0,
+"T" => 300.0
+)
 
 brownian_motion(payload)
