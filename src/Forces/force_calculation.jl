@@ -2,7 +2,7 @@ module FORCE_CALCULATION
 
 include("./potentials.jl")
 using .POTENTIALS
-using DynamicQuantities
+using Unitful
 
 export wall_force, angle_force, create_bond, chain_interaction, magnetic_interaction
 
@@ -51,8 +51,8 @@ end
 
 function chain_interaction(x, b, ϵ, σ, F, numberb, i)
   for nextb = (b + 1):numberb
-   for ip = 1:x[b].n
-     for jp = 1:x[nextb].n
+      for ip = 1:x[b]["n"]
+          for jp = 1:x[nextb]["n"]
          r = x[b]["position"][i, ip, :] - x[nextb]["position"][i, jp, :]
          F[nextb]["force"][i, jp, :] -= wca_f(r, ϵ, σ)
          F[b]["force"][i, ip, :] += wca_f(r, ϵ, σ)

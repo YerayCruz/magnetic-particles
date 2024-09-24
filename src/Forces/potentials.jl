@@ -1,6 +1,6 @@
 module POTENTIALS
 using LinearAlgebra
-using DynamicQuantities
+using Unitful
 
 export elastic_f, F_lj_2d, wca_f, harmonic_force, dipole_magnetic_force
 
@@ -21,11 +21,11 @@ end
 function wca_f(r, ϵ, σ)
     r_norm = sqrt(sum(r .^ 2))
     force_direction = r / r_norm
-    magnitude = 0
+    magnitude = 0u"pN"
     if r_norm < 2 ^ (1 / 6) * σ
         magnitude = 4 * ϵ * (12 * (σ / r_norm) ^ 12 - 6 * (σ / r_norm) ^ 6) / r_norm
     end
-    return magnitude * force_direction
+    return (magnitude) * force_direction
 end
 
 function harmonic_force(r1, r2, angle, ka)
@@ -54,18 +54,16 @@ function harmonic_force(r1, r2, angle, ka)
 end
 
 function dipole_magnetic_force(r, m1, m2)
-    μ = 1
-    r_norm = sqrt(sum(r .^ 2)) |> u"nm"
+    μ = (4 * π * 10 ^ 5)u"mT*nm/A"
+    r_norm = sqrt(sum(r .^ 2))
     r_unit = r ./ r_norm
 
     m1_dot_r = dot(m1, r_unit)
     m2_dot_r = dot(m2, r_unit)
     m1_dot_m2 = dot(m1, m2)
-    println("m1_dot_r: $m1_dot_r")
 
     prefactor = ( 3 * μ ) / ( 4 * π * r_norm ^ 4)
     magnitude = prefactor * ((m1_dot_r * m2) + (m2_dot_r * m1) + (m1_dot_m2 * r_unit) - (5 * r_unit * m1_dot_r * m2_dot_r))
-    println(magnitude)
     return magnitude
 end
 
