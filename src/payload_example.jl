@@ -1,17 +1,17 @@
 include("./main.jl")
 using .MAIN_SIMULATION
 
-payload = Dict("k" =>  0.5,
-"ka"  => 0.1,
-"ϵ" =>  1.0,
-"σ"  => 1.0,
-"d" =>  2.7,
-"angles" =>  [180, 100],
+payload = Dict("k" =>  0.5, ##pN/nm
+"ka"  => 100.0, #pN/°
+"ϵ" =>  100.0, #pN*nm
+"σ"  => 1000.0, #nm
+"d" =>  2700.0, #nm
+"angles" =>  [180, 100], #°
 "bonds" =>  [6, 3],
-"B" => [0.0, 1.0],
-"viscocity" =>  0.9,
-"wall_dimension" =>  20.0,
-"T" => 300.0
+"B" => [0.0, 1.0], #mT
+"viscocity" =>  9.0, #pN*s/nm
+"wall_dimension" =>  20000.0, #nm
+"T" => 300.0 #K
 )
 
 brownian_motion(payload)

@@ -1,7 +1,6 @@
 module BONDS_POSITION
 
-using Plots
-using DynamicQuantities
+using Unitful
 
 export initial_positions_distribution, initial_forces, initial_velocities, magnetic_moment
 
@@ -71,7 +70,7 @@ function initial_forces(bonds, t)
   F = []
 
   for b = 1:length(bonds)
-    zeros_array = zeros(Float64, length(t), bonds[b], 2)us"pN"
+    zeros_array = zeros(Float64, length(t), bonds[b], 2)u"pN"
     push!(F, Dict("force" => zeros_array))
   end
 

@@ -2,9 +2,7 @@ module MAIN_SIMULATION
 
 using ProgressMeter
 using Distributions
-using DynamicQuantities
-@register_unit pN 1e-12u"N"
-@register_unit mT 1e-12u"T"
+using Unitful
 include("./initial_values/init_structures.jl")
 include("./Forces/force_calculation.jl")
 include("./Forces/potentials.jl")
@@ -33,20 +31,19 @@ export brownian_motion
 
 
 function brownian_motion(payload, show_graphic=true)
-    k = payload["k"]us"pN/nm"
-    ka = payload["ka"]us"pN"
-    ϵ = payload["ϵ"]us"pN*nm"
+    k = payload["k"]u"pN/nm"
+    ka = payload["ka"]u"pN"
+    ϵ = payload["ϵ"]u"pN*nm"
     σ = payload["σ"]u"nm"
     d = payload["d"]u"nm"
     angles = payload["angles"]
     bonds = payload["bonds"]
     B = payload["B"]u"mT"
-    viscocity = payload["viscocity"]us"pN*s/nm"
+    viscocity = payload["viscocity"]u"pN*s/nm"
     wall_dimension = payload["wall_dimension"]u"nm"
     T = payload["T"]u"K"
+    kb = 0.013806u"pN/K"
 
-
-    kb = Constants.k_B |> us"pN*nm/K"
     L = wall_dimension/2.0
     t = range(0, stop=5, length=1001)
     
@@ -55,12 +52,11 @@ function brownian_motion(payload, show_graphic=true)
     μ = 1 / viscocity
 
     m = magnetic_moment(bonds, σ, B)
-    Δt = step(t)
+    Δt = step(t)u"s"
     @showprogress "Computing velocity-verlet" for i in 1:length(t)-1
       for b = 1:length(bonds)
         
         wall_force(x, i, ϵ, σ, b, L, F)
-        return
         create_bond(x, viscocity, i, b, F, k, d)
         angle_force(x, i, b, F, ka, angles[b])
         if length(bonds) > 1
@@ -68,7 +64,7 @@ function brownian_motion(payload, show_graphic=true)
             chain_interaction(x, b, ϵ, σ, F, length(bonds), i)
         end
     
-        x[b]["position"][i + 1, :, :] = x[b]["position"][i, :, :] + (Δt * μ ) .* F[b]["force"][i, :, :] + sqrt(Δt * 2 * kb * T * μ ) * rand(Normal())
+        x[b]["position"][i + 1, :, :] = x[b]["position"][i, :, :] .+ (Δt * μ ) .* F[b]["force"][i, :, :] .+ sqrt(Δt * 2 * kb * T * μ) * rand(Normal())u"nm^0.5"
     
       end
     
