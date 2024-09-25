@@ -34,15 +34,15 @@ function brownian_motion(payload, show_graphic=true)
     k = payload["k"]u"pN/nm"
     ka = payload["ka"]u"pN"
     ϵ = payload["ϵ"]u"pN*nm"
-    σ = payload["σ"]u"nm"
-    d = payload["d"]u"nm"
+    σ = payload["σ"]u"μm" |> u"nm"
+    d = payload["d"]u"μm" |> u"nm"
     angles = payload["angles"]
     bonds = payload["bonds"]
     B = payload["B"]u"mT"
     viscocity = payload["viscocity"]u"pN*s/nm"
-    wall_dimension = payload["wall_dimension"]u"nm"
+    wall_dimension = payload["wall_dimension"]u"μm" |> u"nm"
     T = payload["T"]u"K"
-    kb = 0.013806u"pN/K"
+    kb = 0.013806u"pN*nm/K"
 
     L = wall_dimension/2.0
     t = range(0, stop=5, length=1001)
@@ -63,11 +63,9 @@ function brownian_motion(payload, show_graphic=true)
             magnetic_interaction(x, b, m, F, length(bonds), i)
             chain_interaction(x, b, ϵ, σ, F, length(bonds), i)
         end
-    
-        x[b]["position"][i + 1, :, :] = x[b]["position"][i, :, :] .+ (Δt * μ ) .* F[b]["force"][i, :, :] .+ sqrt(Δt * 2 * kb * T * μ) * rand(Normal())u"nm^0.5"
-    
+
+        x[b]["position"][i + 1, :, :] = x[b]["position"][i, :, :] .+ (Δt * μ ) .* F[b]["force"][i, :, :] .+ sqrt(Δt * 2 * kb * T * μ) * rand(Normal())
       end
-    
     end
     
     if show_graphic == true
