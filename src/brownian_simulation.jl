@@ -1,4 +1,4 @@
-module MAIN_SIMULATION
+module BROWNIAN_SIMULATION
 
 using ProgressMeter
 using Distributions
@@ -53,6 +53,7 @@ function brownian_motion(payload, show_graphic=true)
 
     m = magnetic_moment(bonds, σ, B)
     Δt = step(t)u"s"
+
     @showprogress "Computing velocity-verlet" for i in 1:length(t)-1
       for b = 1:length(bonds)
         
